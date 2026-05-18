@@ -20,7 +20,7 @@
 
 **Pilot institutions: Atlanta Technical College (ATC) · Georgia Southern University (GSU)**
 
-[Live Demo](#) · [Report Bug](https://github.com/peddapudisiva/stem-ed-ai/issues) · [Request Feature](https://github.com/peddapudisiva/stem-ed-ai/issues)
+[Live Demo](https://stem-ed-ai.vercel.app) · [Report Bug](https://github.com/peddapudisiva/stem-ed-ai/issues) · [Request Feature](https://github.com/peddapudisiva/stem-ed-ai/issues)
 
 </div>
 
