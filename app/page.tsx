@@ -117,7 +117,7 @@ export default function LandingPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4F46E5]">
             <Brain className="h-4.5 w-4.5 text-white" />
           </div>
-          <span className="font-display text-[16px] tracking-tight text-[#18181B]">STEM-ED-AI</span>
+          <span className="font-display text-[16px] tracking-[0.08em] text-[#18181B]">STEM-ED-AI</span>
           <span className="hidden rounded-full border border-[#E8E6E1] px-2 py-0.5 font-mono text-[10px] text-[#A1A1AA] sm:inline">
             by SERA Neural Labs
           </span>
@@ -145,7 +145,7 @@ export default function LandingPage() {
           Now in pilot — Atlanta Technical College · Georgia Southern University
         </div>
 
-        <h1 className="font-display text-5xl leading-[1.1] tracking-tight text-[#18181B] lg:text-6xl">
+        <h1 className="font-display text-5xl font-bold leading-[1.1] tracking-[0.08em] text-[#18181B] lg:text-6xl">
           The education OS that
           <br />
           <span className="text-[#4F46E5]">closes the retention gap.</span>

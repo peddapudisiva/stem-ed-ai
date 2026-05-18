@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google"
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ServiceWorkerRegister } from "@/components/ui/service-worker-register"
@@ -13,10 +13,10 @@ const inter = Inter({
   display: "swap",
 })
 
-const instrumentSerif = Instrument_Serif({
+const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 })
 
@@ -68,7 +68,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} h-full`}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full antialiased">
         <TooltipProvider delay={300}>
