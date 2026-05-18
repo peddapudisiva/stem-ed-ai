@@ -1,26 +1,332 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   SERA NEURAL LABS — STEM-ED-AI DESIGN SYSTEM
+   Light-mode first. Premium editorial. Not a generic dashboard.
+   ============================================================ */
 
 @theme inline {
+  /* shadcn semantic tokens — mapped to SERA palette */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart colors */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar tokens */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius scale */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Typography */
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono-custom);
+  --font-heading: var(--font-display);
+
+  /* SERA custom color tokens */
+  --color-sera-indigo: var(--accent-primary);
+  --color-sera-gold: var(--accent-secondary);
+  --color-sera-success: var(--accent-success);
+  --color-sera-warning: var(--accent-warning);
+  --color-sera-danger: var(--accent-danger);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* ── SERA backgrounds ── */
+  --bg-primary: #FAFAF9;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F4F4F2;
+
+  /* ── SERA borders ── */
+  --border-subtle: #E8E6E1;
+  --border-default: #D6D3CC;
+
+  /* ── SERA text ── */
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-muted: #A1A1AA;
+
+  /* ── SERA accents ── */
+  --accent-primary: #4F46E5;
+  --accent-primary-hover: #4338CA;
+  --accent-secondary: #B8860B;
+  --accent-success: #059669;
+  --accent-warning: #D97706;
+  --accent-danger: #DC2626;
+
+  /* ── shadcn semantic tokens — SERA values ── */
+  --background: #FAFAF9;
+  --foreground: #18181B;
+  --card: #FFFFFF;
+  --card-foreground: #18181B;
+  --popover: #FFFFFF;
+  --popover-foreground: #18181B;
+  --primary: #4F46E5;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F4F4F2;
+  --secondary-foreground: #18181B;
+  --muted: #F4F4F2;
+  --muted-foreground: #52525B;
+  --accent: #F4F4F2;
+  --accent-foreground: #18181B;
+  --destructive: #DC2626;
+  --border: #E8E6E1;
+  --input: #E8E6E1;
+  --ring: #4F46E5;
+  --radius: 0.75rem;
+
+  /* ── Chart palette ── */
+  --chart-1: #4F46E5;
+  --chart-2: #059669;
+  --chart-3: #D97706;
+  --chart-4: #B8860B;
+  --chart-5: #DC2626;
+
+  /* ── Sidebar ── */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #18181B;
+  --sidebar-primary: #4F46E5;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F4F4F2;
+  --sidebar-accent-foreground: #18181B;
+  --sidebar-border: #E8E6E1;
+  --sidebar-ring: #4F46E5;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply antialiased;
+    font-family: var(--font-body), -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* Selection color */
+  ::selection {
+    background: #4F46E520;
+    color: #4F46E5;
+  }
+
+  /* Scrollbar — webkit */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D6D3CC;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A1A1AA;
   }
 }
 
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.font-display {
+  font-family: var(--font-display), 'GT Sectra', Georgia, serif !important;
+}
+
+.font-body {
+  font-family: var(--font-body), -apple-system, sans-serif !important;
+}
+
+.font-mono-custom {
+  font-family: var(--font-mono-custom), 'Geist Mono', monospace !important;
+}
+
+/* Page title — the editorial signature */
+.page-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Section header — uppercase editorial */
+.section-header {
+  font-family: var(--font-body), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Data value — monospace for numbers, IDs, dates */
+.data-value {
+  font-family: var(--font-mono-custom), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   ANIMATION UTILITIES
+   ============================================================ */
+
+@keyframes orb-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -30px) scale(1.05); }
+  66%       { transform: translate(-20px, 20px) scale(0.97); }
+}
+
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-50px, 30px) scale(1.03); }
+  70%       { transform: translate(25px, -15px) scale(0.98); }
+}
+
+@keyframes orb-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%       { transform: translate(30px, 40px) scale(1.04); }
+  75%       { transform: translate(-35px, -25px) scale(0.96); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease both;
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   COMPONENT OVERRIDES
+   ============================================================ */
+
+/* Cards — no shadow, border + hover lift */
+.card-base {
+  background: #FFFFFF;
+  border: 1px solid #E8E6E1;
+  border-radius: 12px;
+  transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-base:hover {
+  border-color: #D6D3CC;
+  transform: translateY(-1px);
+}
+
+/* Sidebar override — clean white */
+[data-slot="sidebar"] {
+  border-right: 1px solid var(--border-subtle) !important;
+  background: #FFFFFF !important;
+}
+
+/* ============================================================
+   PWA + MOBILE SAFE AREAS
+   ============================================================ */
+
+/* iOS notch / home indicator safe area padding */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Touch callout disable for nav elements */
+nav a,
+nav button {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent rubber-band scroll on iOS for fixed shells */
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overscroll-behavior: none;
+}
+
+/* Larger tap targets on mobile */
+@media (max-width: 1023px) {
+  button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

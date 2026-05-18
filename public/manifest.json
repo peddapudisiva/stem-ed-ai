@@ -1,0 +1,58 @@
+{
+  "name": "STEM-ED-AI · SERA Neural Labs",
+  "short_name": "STEM-ED-AI",
+  "description": "AI-native education operating system for student retention, learning management, and curriculum governance.",
+  "start_url": "/dashboard/student",
+  "display": "standalone",
+  "background_color": "#FAFAF9",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Student Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI Workspace",
+      "short_name": "AI",
+      "description": "Open the multi-agent AI workspace",
+      "url": "/assistant",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "My Courses",
+      "short_name": "Courses",
+      "description": "View enrolled courses",
+      "url": "/dashboard/student/courses",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any" }]
+    }
+  ]
+}
