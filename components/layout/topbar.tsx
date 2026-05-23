@@ -74,7 +74,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
     <>
       <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} />
 
-      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-[#E8E6E1] bg-white/90 px-4 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-[#E8E6E1] bg-white/90 dark:bg-[#141414]/95 dark:border-[#2A2A2A] px-4 backdrop-blur-sm">
         {/* Mobile hamburger */}
         <button
           onClick={onMenuClick}
