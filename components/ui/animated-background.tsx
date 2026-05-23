@@ -1,27 +1,31 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { useThemeStore } from "@/lib/theme-store"
 
 export function AnimatedBackground() {
   const spotlightRef = useRef<HTMLDivElement>(null)
+  const theme = useThemeStore((s) => s.theme)
+  const isDark = theme === "dark"
 
   useEffect(() => {
     const el = spotlightRef.current
     if (!el) return
 
+    const color = isDark ? "rgba(99,102,241,0.06)" : "rgba(79,70,229,0.04)"
     const onMove = (e: MouseEvent) => {
-      el.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(79,70,229,0.04), transparent 70%)`
+      el.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, ${color}, transparent 70%)`
     }
 
     window.addEventListener("mousemove", onMove)
     return () => window.removeEventListener("mousemove", onMove)
-  }, [])
+  }, [isDark])
 
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
-      style={{ background: "#FAFAF9" }}
+      style={{ background: isDark ? "#0F0F0F" : "#FAFAF9" }}
     >
       {/* Layer 2: SVG noise texture */}
       <svg
@@ -50,7 +54,9 @@ export function AnimatedBackground() {
             height: 600,
             top: "10%",
             left: "15%",
-            background: "radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)",
+            background: isDark
+              ? "radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)",
             filter: "blur(120px)",
             animation: "orb-drift-1 28s ease-in-out infinite",
           }}
@@ -63,7 +69,9 @@ export function AnimatedBackground() {
             height: 500,
             top: "55%",
             right: "10%",
-            background: "radial-gradient(circle, rgba(184,134,11,0.06) 0%, transparent 70%)",
+            background: isDark
+              ? "radial-gradient(circle, rgba(212,160,23,0.09) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(184,134,11,0.06) 0%, transparent 70%)",
             filter: "blur(120px)",
             animation: "orb-drift-2 35s ease-in-out infinite",
           }}
@@ -76,7 +84,9 @@ export function AnimatedBackground() {
             height: 450,
             bottom: "5%",
             left: "40%",
-            background: "radial-gradient(circle, rgba(5,150,105,0.05) 0%, transparent 70%)",
+            background: isDark
+              ? "radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(5,150,105,0.05) 0%, transparent 70%)",
             filter: "blur(120px)",
             animation: "orb-drift-3 42s ease-in-out infinite",
           }}
@@ -87,10 +97,9 @@ export function AnimatedBackground() {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px)
-          `,
+          backgroundImage: isDark
+            ? `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`
+            : `linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px)`,
           backgroundSize: "60px 60px",
         }}
       />
