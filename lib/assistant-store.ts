@@ -93,7 +93,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
     }
   },
 
-  sendMessage: (content) => {
+  sendMessage: async (content) => {
     const { activeAgentId, messages, multiAgentMode, selectedAgentIds } = get()
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     const agentIds = multiAgentMode ? selectedAgentIds : [activeAgentId]
@@ -115,62 +115,95 @@ export const useAssistantStore = create<AssistantState>((set, get) => ({
       },
     }))
 
-    // Stream agent responses (sequentially for multi-agent)
-    agentIds.forEach((agentId, idx) => {
+    // Stream agent responses
+    const streamText = (agentId: string, responseText: string, streamId: string) => {
       const agent = AGENTS.find((a) => a.id === agentId)
-      const responseText = getRandomResponse(agentId)
-      const streamId = `stream-${agentId}-${Date.now()}`
-      const streamDelay = idx * 800
+      const streamMsg: Message = {
+        id: streamId,
+        role: "agent",
+        agentId,
+        agentName: agent?.name ?? agentId,
+        content: "",
+        streaming: true,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      }
 
-      setTimeout(() => {
-        const streamMsg: Message = {
-          id: streamId,
-          role: "agent",
-          agentId,
-          agentName: agent?.name ?? agentId,
-          content: "",
-          streaming: true,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        }
+      set((s) => ({
+        messages: {
+          ...s.messages,
+          [activeAgentId]: [...(s.messages[activeAgentId] ?? []), streamMsg],
+        },
+        streamingMessageId: streamId,
+      }))
 
+      let i = 0
+      const interval = setInterval(() => {
+        i += 3
+        const partial = responseText.slice(0, i)
         set((s) => ({
           messages: {
             ...s.messages,
-            [activeAgentId]: [...(s.messages[activeAgentId] ?? []), streamMsg],
+            [activeAgentId]: (s.messages[activeAgentId] ?? []).map((m) =>
+              m.id === streamId ? { ...m, content: partial } : m
+            ),
           },
-          streamingMessageId: streamId,
         }))
-
-        // Character-by-character stream
-        let i = 0
-        const interval = setInterval(() => {
-          i += 3 // reveal 3 chars at a time for speed
-          const partial = responseText.slice(0, i)
-
+        if (i >= responseText.length) {
+          clearInterval(interval)
           set((s) => ({
             messages: {
               ...s.messages,
               [activeAgentId]: (s.messages[activeAgentId] ?? []).map((m) =>
-                m.id === streamId ? { ...m, content: partial } : m
+                m.id === streamId ? { ...m, content: responseText, streaming: false } : m
               ),
             },
+            streamingMessageId: null,
           }))
+        }
+      }, 18)
+    }
 
-          if (i >= responseText.length) {
-            clearInterval(interval)
-            set((s) => ({
-              messages: {
-                ...s.messages,
-                [activeAgentId]: (s.messages[activeAgentId] ?? []).map((m) =>
-                  m.id === streamId ? { ...m, content: responseText, streaming: false } : m
-                ),
-              },
-              streamingMessageId: null,
-            }))
-          }
-        }, 18)
-      }, 600 + streamDelay)
-    })
+    for (let idx = 0; idx < agentIds.length; idx++) {
+      const agentId = agentIds[idx]
+      const streamId = `stream-${agentId}-${Date.now()}-${idx}`
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 600 + idx * 800))
+
+      // Build system prompt from agent type
+      const systemPromptMap: Record<string, string> = {
+        tutor: "You are SERA AI Tutor. Help students learn — never do their work for them. Be encouraging, concise (under 200 words).",
+        teacher: "You are SERA Teacher Assistant. Help faculty with lesson plans, rubrics, and admin tasks. Never make final grade decisions.",
+        curriculum: "You are SERA Curriculum Architect. Help with course proposals and standards alignment. Never personalize to individual students.",
+        assessment: "You are SERA Assessment Builder. Generate and analyze assessments. Never determine final grades.",
+        district: "You are SERA District Analyst. Provide read-only KPI intelligence. Never trigger actions.",
+        govcon: "You are SERA GovCon Intel. Track federal opportunities. Never submit proposals autonomously.",
+        rag: "You are SERA RAG Knowledge. Retrieve from institutional knowledge base. Retrieval only, never generate original content.",
+        workflow: "You are SERA Workflow Orchestrator. Execute defined workflow logic only.",
+        reporting: "You are SERA Reporting Engine. Summarize compliance data only, never recommend actions.",
+        compliance: "You are SERA Compliance Guard. Flag issues only, never auto-remediate.",
+      }
+
+      const agentHistory = (messages[activeAgentId] ?? []).slice(-8).map((m) => ({
+        role: m.role === "user" ? "user" : "assistant" as "user" | "assistant",
+        content: m.content,
+      }))
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [...agentHistory, { role: "user", content }],
+            systemPrompt: systemPromptMap[agentId] ?? systemPromptMap.tutor,
+          }),
+        })
+        const data = await res.json()
+        const responseText = data.content ?? getRandomResponse(agentId)
+        streamText(agentId, responseText, streamId)
+      } catch {
+        streamText(agentId, getRandomResponse(agentId), streamId)
+      }
+    }
   },
 
   setStreamBuffer: (text) => set({ streamBuffer: text }),

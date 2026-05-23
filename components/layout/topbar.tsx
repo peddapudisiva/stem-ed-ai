@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Bell, ChevronRight, Menu, Search, Settings, LogOut, User } from "lucide-react"
+import { Bell, ChevronRight, Menu, Moon, Search, Settings, LogOut, Sun, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TOPBAR } from "@/lib/copy"
 import { useAuthStore, ROLE_HOME } from "@/lib/auth-store"
@@ -20,6 +20,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CommandPalette } from "@/components/ui/command-palette"
+import { useThemeStore } from "@/lib/theme-store"
 
 function useBreadcrumb() {
   const pathname = usePathname()
@@ -52,6 +53,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const markAsRead = useNotificationStore((s) => s.markAsRead)
   const markAllAsRead = useNotificationStore((s) => s.markAllAsRead)
   const unreadCount = useNotificationStore((s) => s.unreadCount)()
+
+  const { theme, toggle: toggleTheme } = useThemeStore()
 
   const [notifOpen, setNotifOpen] = useState(false)
   const [cmdOpen, setCmdOpen] = useState(false)
@@ -121,6 +124,15 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             className="sm:hidden flex h-9 w-9 items-center justify-center rounded-lg text-[#52525B] hover:bg-[#F4F4F2] transition-colors"
           >
             <Search className="h-4 w-4" />
+          </button>
+
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#52525B] hover:bg-[#F4F4F2] dark:text-[#A1A1AA] dark:hover:bg-[#262626] transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
 
           {/* Notification bell */}

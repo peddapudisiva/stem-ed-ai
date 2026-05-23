@@ -4,10 +4,12 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   CreditCard, CheckCircle2, Zap, Users, HardDrive,
-  Brain, FileText, Download, AlertTriangle, ChevronDown
+  Brain, FileText, Download, AlertTriangle, ChevronDown, Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { AppShell } from "@/components/layout/app-shell"
+import { useAuthStore } from "@/lib/auth-store"
+import { toast } from "sonner"
 
 const PLANS = [
   {
@@ -29,6 +31,7 @@ const PLANS = [
     features: ["Up to 200 students", "Unlimited AI sessions", "25 GB storage", "Advanced analytics", "Priority support", "Canvas & Banner integration"],
     color: "#059669", bg: "#D1FAE5",
     cta: "Upgrade",
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL ?? "price_professional",
   },
   {
     id: "enterprise",
@@ -39,6 +42,7 @@ const PLANS = [
     features: ["Unlimited students", "Dedicated AI capacity", "1 TB+ storage", "SAML SSO & 2FA", "Multi-tenant management", "SLA & dedicated CSM", "FERPA BAA included"],
     color: "#4F46E5", bg: "#EEF2FF",
     cta: "Contact sales",
+    priceId: null,
   },
 ]
 
@@ -56,9 +60,37 @@ const INVOICES = [
 ]
 
 export default function BillingPage() {
+  const user = useAuthStore((s) => s.user)
   const [currentPlan]  = useState("starter")
   const [showUpgrade,  setShowUpgrade]  = useState(false)
   const [showInvoices, setShowInvoices] = useState(false)
+  const [upgradingId,  setUpgradingId]  = useState<string | null>(null)
+
+  async function handleUpgrade(plan: typeof PLANS[0]) {
+    if (plan.id === "enterprise") {
+      window.open("mailto:sales@seratrust.org?subject=Enterprise Plan Inquiry", "_blank")
+      return
+    }
+    if (!plan.priceId) return
+    setUpgradingId(plan.id)
+    try {
+      const res = await fetch("/api/billing/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId: plan.priceId, userId: user?.id }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else if (data.error) {
+        toast.error(data.error)
+      }
+    } catch {
+      toast.error("Failed to start checkout. Please try again.")
+    } finally {
+      setUpgradingId(null)
+    }
+  }
 
   return (
     <AppShell>
@@ -158,15 +190,17 @@ export default function BillingPage() {
                       ))}
                     </ul>
                     <button
-                      className={cn("mt-5 w-full rounded-lg py-2 text-xs font-medium transition-colors",
+                      onClick={() => handleUpgrade(plan)}
+                      className={cn("mt-5 w-full rounded-lg py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1.5",
                         plan.id === currentPlan
                           ? "bg-[#F4F4F2] text-[#A1A1AA] cursor-default"
                           : plan.id === "professional"
                             ? "bg-[#4F46E5] text-white hover:bg-[#4338CA]"
                             : "border border-[#E8E6E1] text-[#52525B] hover:bg-[#FAFAF9]"
                       )}
-                      disabled={plan.id === currentPlan}
+                      disabled={plan.id === currentPlan || upgradingId === plan.id}
                     >
+                      {upgradingId === plan.id && <Loader2 className="h-3 w-3 animate-spin" />}
                       {plan.cta}
                     </button>
                   </motion.div>

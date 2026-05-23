@@ -151,13 +151,32 @@ export default function TutorPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isTyping])
 
-  function sendMessage(text: string = input.trim()) {
+  async function sendMessage(text: string = input.trim()) {
     if (!text) return
     const userMsg: Message = { id: `u-${Date.now()}`, role: "user", content: text, timestamp: new Date() }
     setMessages((prev) => [...prev, userMsg])
     setInput("")
     setIsTyping(true)
-    setTimeout(() => {
+
+    try {
+      const history = messages.slice(-10).map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      }))
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...history, { role: "user", content: text }],
+          systemPrompt: `You are SERA, an AI academic tutor for the course ${selectedCourse.code} — ${selectedCourse.title}. Help the student understand course material, work through problems, and develop study strategies. Be encouraging and concise (under 200 words). Never complete assignments for the student — guide them to find the answer themselves.`,
+        }),
+      })
+      const data = await res.json()
+      const content = data.content ?? getResponse(text)
+      const aiMsg: Message = { id: `a-${Date.now()}`, role: "assistant", content, timestamp: new Date() }
+      setMessages((prev) => [...prev, aiMsg])
+    } catch {
+      // Fallback to demo responses if API unavailable
       const aiMsg: Message = {
         id: `a-${Date.now()}`,
         role: "assistant",
@@ -165,8 +184,9 @@ export default function TutorPage() {
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, aiMsg])
+    } finally {
       setIsTyping(false)
-    }, 1200 + Math.random() * 800)
+    }
   }
 
   function toggleLike(id: string, val: boolean) {

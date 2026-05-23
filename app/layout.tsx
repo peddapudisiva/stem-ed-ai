@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { ServiceWorkerRegister } from "@/components/ui/service-worker-register"
 import { PwaInstallPrompt } from "@/components/ui/pwa-install-prompt"
 import { ChangelogModal } from "@/components/ui/changelog-modal"
+import { ThemeProvider } from "@/components/ui/theme-provider"
 import "./globals.css"
 
 const inter = Inter({
@@ -72,6 +73,7 @@ export default function RootLayout({
     >
       <body className="min-h-full antialiased">
         <TooltipProvider delay={300}>
+          <ThemeProvider />
           {children}
           <Toaster richColors position="bottom-right" />
           <PwaInstallPrompt />

@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 
 export type AuthRole =
   | "student"
@@ -24,7 +25,8 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null
   isLoading: boolean
-  signIn: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<{ error?: string }>
+  signUp: (email: string, password: string, name: string, role: AuthRole) => Promise<{ error?: string }>
   signOut: () => void
   setUser: (user: AuthUser) => void
   completeOnboarding: () => void
@@ -93,9 +95,33 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isLoading: false,
 
-      signIn: async (email, _password) => {
+      signIn: async (email, password) => {
         set({ isLoading: true })
-        // Simulate network delay
+
+        // Try Supabase auth if configured
+        if (isSupabaseConfigured && supabase) {
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+          if (!error && data.user) {
+            const meta = data.user.user_metadata ?? {}
+            const user: AuthUser = {
+              id: data.user.id,
+              name: meta.name ?? email.split("@")[0],
+              email,
+              role: (meta.role as AuthRole) ?? "student",
+              institution: meta.institution ?? "Institution",
+              hasOnboarded: meta.hasOnboarded ?? true,
+              avatarInitials: (meta.name ?? email).slice(0, 2).toUpperCase(),
+            }
+            set({ user, isLoading: false })
+            return {}
+          }
+          if (error) {
+            set({ isLoading: false })
+            return { error: error.message }
+          }
+        }
+
+        // Fallback: mock auth (demo mode)
         await new Promise((r) => setTimeout(r, 800))
         const user = MOCK_USERS[email] ?? {
           id: "u999", name: "Demo User", email,
@@ -105,9 +131,57 @@ export const useAuthStore = create<AuthState>()(
           avatarInitials: email.slice(0, 2).toUpperCase(),
         }
         set({ user, isLoading: false })
+        return {}
       },
 
-      signOut: () => set({ user: null }),
+      signUp: async (email, password, name, role) => {
+        set({ isLoading: true })
+
+        if (isSupabaseConfigured && supabase) {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { name, role, institution: "Atlanta Technical College", hasOnboarded: false },
+            },
+          })
+          if (!error && data.user) {
+            const user: AuthUser = {
+              id: data.user.id,
+              name,
+              email,
+              role,
+              institution: "Atlanta Technical College",
+              hasOnboarded: false,
+              avatarInitials: name.slice(0, 2).toUpperCase(),
+            }
+            set({ user, isLoading: false })
+            return {}
+          }
+          if (error) {
+            set({ isLoading: false })
+            return { error: error.message }
+          }
+        }
+
+        // Fallback: create mock user
+        await new Promise((r) => setTimeout(r, 800))
+        const user: AuthUser = {
+          id: `u${Date.now()}`, name, email, role,
+          institution: "Atlanta Technical College",
+          hasOnboarded: false,
+          avatarInitials: name.slice(0, 2).toUpperCase(),
+        }
+        set({ user, isLoading: false })
+        return {}
+      },
+
+      signOut: () => {
+        if (isSupabaseConfigured && supabase) {
+          supabase.auth.signOut()
+        }
+        set({ user: null })
+      },
 
       setUser: (user) => set({ user }),
 
